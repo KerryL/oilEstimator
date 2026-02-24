@@ -1,0 +1,36 @@
+# Ignore MSVC++ binary and object directories
+Debug/
+Release/
+ipch/
+*.opendb
+*.db
+*.vs
+
+*.js
+
+*.log
+*.csv
+*.xlsx
+
+data/
+__pycache__/
+
+*.sh
+*.html
+
+*.cookies
+~*
+
+*.suo
+*.sdf
+*.opensdf
+*.bak
+*.swp
+*.html
+
+# Ignore GKT directories
+bin/
+.obj/
+
+# Ignore automatically generated files
+gitHash.cpp
