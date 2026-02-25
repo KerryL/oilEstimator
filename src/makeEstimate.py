@@ -6,6 +6,7 @@ import sys
 import datetime
 import numpy as np
 import csv
+import matplotlib.pyplot as plt
 
 def do_make_estimate(configFileName):
     # Read application configuration, weather data, and delivery data
@@ -33,7 +34,8 @@ def do_make_estimate(configFileName):
     if sent_email:
         appConfig.write_to_xml(config['DATE_FILE'], datetime.date.today())
     
-    # TODO: If an error occurs, send email
+    # TODO:  If an error occurs, send email
+    # TODO:  Once a year, send a summary email including average temperature over the season and total oil consumed?
 
 def estimate_fill_volume(weather_data, delivery_data, reference_temp, alpha):
     lastDeliveryDate = None
@@ -58,10 +60,12 @@ def estimate_fill_volume(weather_data, delivery_data, reference_temp, alpha):
         knownYs.append(deliveryVolume)
         lastDeliveryDate = deliveryDate
     
-    #print('Xs')
-    #print(knownXs)
-    #print('\nYs')
-    #print(knownYs)
+    if False:
+        print('Xs')
+        print(knownXs)
+        print('\nYs')
+        print(knownYs)
+    
     coefficients = np.linalg.lstsq(knownXs, knownYs)[0]
     
     #with open('test.csv', 'w', newline='') as csvfile:
@@ -73,6 +77,20 @@ def estimate_fill_volume(weather_data, delivery_data, reference_temp, alpha):
     xValuesForEstimate = compute_x_values(lastDeliveryDate, datetime.date.today(), weather_data, reference_temp)
     #print(xValuesForEstimate)
     #print(coefficients)
+    
+    if False:
+        estimatedFillVolumes = knownXs @ coefficients
+        errorValues = estimatedFillVolumes - knownYs
+        #print(errorValues)
+        fig = plt.figure(figsize=(12, 12))
+        ax = fig.add_subplot(projection='3d')
+        knownXs = np.array(knownXs)
+        ax.scatter(knownXs[:,0], knownXs[:,1], knownYs, c='r', marker='o')
+        ax.scatter(knownXs[:,0], knownXs[:,1], estimatedFillVolumes, c='b', marker='o')
+        ax.set_xlabel('Tavg Integral (deg F-day)')
+        ax.set_ylabel('Days Below Tref (day)')
+        ax.set_zlabel('Estimated Fill Volume (gal)')
+        plt.show()
     
     return xValuesForEstimate[0] * coefficients[0] + xValuesForEstimate[1] * coefficients[1]
 
