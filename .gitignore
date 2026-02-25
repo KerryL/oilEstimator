@@ -11,6 +11,8 @@ ipch/
 *.log
 *.csv
 *.xlsx
+*.json
+*.xml
 
 data/
 __pycache__/

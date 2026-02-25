@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OIL_ESTIMATOR_CONFIG VERSION="1">
+	<LATITUDE value="35" units="deg" />
+	<LONGITUDE value="-70" units="deg" />
+	<ELEVATION value="0" units="m" />
+	<MAX_NO_EMAIL_DAYS value="7" />
+	<MIN_VOLUME value="60" units="gal" />
+	<DATE_FILE value="updateDates.xml" />
+	<ALPHA value="0.2" />
+	<REF_TEMP value="65" units="deg F" />
+	<SENDER_EMAIL value="from@gmail.com" />
+	<TO_EMAIL value="to1@gmail.com" />
+	<TO_EMAIL value="to2@gmail.com" />
+</OIL_ESTIMATOR_CONFIG>

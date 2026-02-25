@@ -20,9 +20,29 @@ def read_values_from_xml(file_path, parent_tag="OIL_ESTIMATOR_CONFIG"):
     for child in parent:
         value = child.get("value")
         if value is not None:
-            results[child.tag] = value
+            if child.tag == 'TO_EMAIL':
+                if child.tag not in results.keys():
+                    results[child.tag] = []
+                results[child.tag].append(value)
+            else:
+                results[child.tag] = value
 
     return results
+
+def write_to_xml(file_path, value,
+                         parent_tag="OIL_ESTIMATOR_DATES",
+                         child_tag="LAST_EMAIL_SENT"):
+
+    # Create parent element
+    parent = ET.Element(parent_tag)
+
+    # Create child element with value attribute
+    child = ET.SubElement(parent, child_tag)
+    child.set("value", str(value))
+
+    # Create tree and write to file
+    tree = ET.ElementTree(parent)
+    tree.write(file_path, encoding="utf-8", xml_declaration=True)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
