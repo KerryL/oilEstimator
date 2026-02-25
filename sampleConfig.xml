@@ -5,6 +5,7 @@
 	<ELEVATION value="0" units="m" />
 	<MAX_NO_EMAIL_DAYS value="7" />
 	<MIN_VOLUME value="60" units="gal" />
+	<TANK_VOLUME value="250" units="gal" />
 	<DATE_FILE value="updateDates.xml" />
 	<ALPHA value="0.2" />
 	<REF_TEMP value="65" units="deg F" />

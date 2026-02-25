@@ -18,22 +18,24 @@ def do_make_estimate(configFileName):
     emailInfo = emailHelpers.EmailInformation(config['SENDER_EMAIL'], config['TO_EMAIL'])
     
     # Estimate the remaining oil level in the tank
-    remaining_oil = estimate_oil_level(weather_data, delivery_data, float(config['REF_TEMP']), float(config['ALPHA']))
-    print('Estimated remaining oil = ' + str(remaining_oil) + ' gal')
+    volume_to_fill = estimate_fill_volume(weather_data, delivery_data, float(config['REF_TEMP']), float(config['ALPHA']))
+    remaining_volume = int(config['TANK_VOLUME']) - volume_to_fill
+    print('Estimated fill volume = ' + str(int(volume_to_fill + 0.5)) + ' gal')
+    print('Remaining volume = ' + str(int(remaining_volume + 0.5)) + ' gal')
     
     # Send emails as appropriate
     sent_email = False
-    if remaining_oil < float(config['MIN_VOLUME']):
-        sent_email = send_warning_email(emailInfo, remaining_oil)
+    if remaining_volume < float(config['MIN_VOLUME']):
+        sent_email = send_warning_email(emailInfo, volume_to_fill, remaining_volume)
     elif time_to_send_update_email(updateDates['LAST_EMAIL_SENT'], int(config['MAX_NO_EMAIL_DAYS'])):
-        sent_email = send_update_email(emailInfo, remaining_oil)
+        sent_email = send_update_email(emailInfo, volume_to_fill, remaining_volume)
     
     if sent_email:
         appConfig.write_to_xml(config['DATE_FILE'], datetime.date.today())
     
     # TODO: If an error occurs, send email
 
-def estimate_oil_level(weather_data, delivery_data, reference_temp, alpha):
+def estimate_fill_volume(weather_data, delivery_data, reference_temp, alpha):
     lastDeliveryDate = None
     knownXs = []
     knownYs = []
@@ -99,13 +101,16 @@ def time_to_send_update_email(last_update_date, max_no_email_days):
     today = datetime.date.today()
     return (today - lastDate).days
 
-def send_warning_email(emailInfo, oilVolume):
-    emailHelpers.send_email(emailInfo.senderEmail, emailInfo.toEmails, 'Low Estimated Oil Level', 'Estimated oil level is ' + str(int(oilVolume)) + ' gal.')
+def send_warning_email(emailInfo, volume_to_fill, remaining_volume):
+    emailHelpers.send_email(emailInfo.senderEmail, emailInfo.toEmails, 'Low Estimated Oil Level', generate_email_body(volume_to_fill, remaining_volume))
     return True
 
-def send_update_email(emailInfo, oilVolume):
-    emailHelpers.send_email(emailInfo.senderEmail, emailInfo.toEmails, 'Estimated Oil Level Update', 'Estimated oil level is ' + str(int(oilVolume)) + ' gal.')
+def send_update_email(emailInfo, volume_to_fill, remaining_volume):
+    emailHelpers.send_email(emailInfo.senderEmail, emailInfo.toEmails, 'Estimated Oil Level Update', generate_email_body(volume_to_fill, remaining_volume))
     return True
+
+def generate_email_body(volume_to_fill, remaining_volume):
+    return 'Remaining oil level is estimated to be ' + str(int(remaining_volume + 0.5)) + ' gal; estimated fill volume is ' + str(int(volume_to_fill + 0.5)) + ' gal.'
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:
