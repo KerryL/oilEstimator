@@ -92,7 +92,19 @@ def estimate_fill_volume(weather_data, delivery_data, reference_temp, alpha):
         ax.set_zlabel('Estimated Fill Volume (gal)')
         plt.show()
     
-    return xValuesForEstimate[0] * coefficients[0] + xValuesForEstimate[1] * coefficients[1]
+    lastDataDate = datetime.datetime.strptime(weather_data[-1][0], '%Y-%m-%d').date()
+    print('Weather data exists through ' + str(lastDataDate))
+    estimateOnLastDataDate = xValuesForEstimate[0] * coefficients[0] + xValuesForEstimate[1] * coefficients[1]
+    print('Estimated fill volume on ' + str(lastDataDate) + ' is ' + str(estimateOnLastDataDate) + ' gal')
+    
+    # Since we don't have better data, assume the same average temperature as the last data day
+    # Always add one more day, since tank will generally be filled tomorrow
+    additionalDays = (datetime.date.today() - lastDataDate).days + 1
+    print(str(additionalDays) + ' more days')
+    lastDataTavg = 0.5 * (weather_data[-1][1] + weather_data[-1][2])
+    estimateToday = (xValuesForEstimate[0] + additionalDays * lastDataTavg) * coefficients[0] + (xValuesForEstimate[1] + additionalDays) * coefficients[1]
+    
+    return estimateToday
 
 def compute_x_values(start_date, end_date, weather_data, reference_temp):
     # TODO:  Make more efficient

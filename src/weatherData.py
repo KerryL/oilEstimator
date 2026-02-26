@@ -18,6 +18,7 @@ def get_weather_history(latitude, longitude, altitude):
         return old_weather
     
     # Need to get recent weather info
+    print('Requesting weather data from ' + str(startDate) + ' to ' + str(endDate))
     recent_weather = download_weather_history(latitude, longitude, altitude, startDate, endDate)
     weather_data = old_weather + recent_weather;
     write_weather_history_csv(weatherHistoryFile, weather_data)
@@ -71,12 +72,15 @@ def download_weather_history(latitude, longitude, altitude, startDate, endDate):
     
     # Get nearby weather stations
     stations = ms.stations.nearby(POINT, limit=4)
+    #print(stations)
     
     # Get daily data & perform interpolation
     ts = ms.daily(stations, startDate, endDate)
     df = ms.interpolate(ts, POINT).fetch()
+    print(ts)
     
     if df is None:# No results found
+        print('Failed to find new weather data')
         return []
     
     data = []
@@ -86,5 +90,6 @@ def download_weather_history(latitude, longitude, altitude, startDate, endDate):
     # Plot line chart including average, minimum and maximum temperature
     #df.plot(y=[ms.Parameter.TEMP, ms.Parameter.TMIN, ms.Parameter.TMAX])
     #plt.show()
+    print('Downloaded ' + len(data) + ' new data points')
     return data
     
