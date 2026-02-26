@@ -15,6 +15,8 @@ def do_make_estimate(configFileName):
     weather_data = weatherData.get_weather_history(float(config['LATITUDE']), float(config['LONGITUDE']), float(config['ELEVATION']))
     delivery_data = deliveryData.read_delivery_data()
     
+    #check_for_missing_weather_data(weather_data)
+    
     # Assemble email information into a helper object
     emailInfo = emailHelpers.EmailInformation(config['SENDER_EMAIL'], config['TO_EMAIL'])
     
@@ -141,6 +143,19 @@ def send_update_email(emailInfo, volume_to_fill, remaining_volume):
 
 def generate_email_body(volume_to_fill, remaining_volume):
     return 'Remaining oil level is estimated to be ' + str(int(remaining_volume + 0.5)) + ' gal; estimated fill volume is ' + str(int(volume_to_fill + 0.5)) + ' gal.'
+
+def check_for_missing_weather_data(weather_data):
+    firstDate = datetime.datetime.strptime(weather_data[0][0], '%Y-%m-%d').date()
+    lastDate = datetime.datetime.strptime(weather_data[-1][0], '%Y-%m-%d').date()
+    print('Weather data exists from ' + str(firstDate) + ' to ' + str(lastDate))
+    
+    expectedDate = firstDate
+    for wd in weather_data:
+        dataDate = datetime.datetime.strptime(wd[0], '%Y-%m-%d').date()
+        while expectedDate != dataDate:
+            print('No weather data for ' + str(expectedDate))
+            expectedDate += datetime.timedelta(days=1)
+        expectedDate += datetime.timedelta(days=1)
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

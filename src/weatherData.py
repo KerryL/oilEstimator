@@ -71,13 +71,12 @@ def download_weather_history(latitude, longitude, altitude, startDate, endDate):
     POINT = ms.Point(latitude, longitude, altitude)
     
     # Get nearby weather stations
-    stations = ms.stations.nearby(POINT, limit=4)
+    stations = ms.stations.nearby(POINT, limit=8)
     #print(stations)
     
     # Get daily data & perform interpolation
     ts = ms.daily(stations, startDate, endDate)
-    df = ms.interpolate(ts, POINT).fetch()
-    print(ts)
+    df = ms.interpolate(ts, POINT).fetch(units=ms.UnitSystem.IMPERIAL)
     
     if df is None:# No results found
         print('Failed to find new weather data')
@@ -85,11 +84,11 @@ def download_weather_history(latitude, longitude, altitude, startDate, endDate):
     
     data = []
     for idx, row in df.iterrows():
-        data.append([row.name.to_pydatetime().strftime('%Y-%m-%d'), row['tmin'] * 1.8 + 32, row['tmax'] * 1.8 + 32])
+        data.append([row.name.to_pydatetime().strftime('%Y-%m-%d'), row['tmin'], row['tmax']])
 
     # Plot line chart including average, minimum and maximum temperature
     #df.plot(y=[ms.Parameter.TEMP, ms.Parameter.TMIN, ms.Parameter.TMAX])
     #plt.show()
-    print('Downloaded ' + len(data) + ' new data points')
+    print('Downloaded ' + str(len(data)) + ' new data points')
     return data
     
