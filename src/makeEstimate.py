@@ -1,7 +1,8 @@
 import emailHelpers
 import weatherData
 import appConfig
-import deliveryData
+#import deliveryData
+import deliverySheetInterface
 import sys
 import datetime
 import numpy as np
@@ -13,7 +14,7 @@ def do_make_estimate(configFileName):
     config = appConfig.read_values_from_xml(configFileName)
     updateDates = appConfig.read_values_from_xml(config['DATE_FILE'], 'OIL_ESTIMATOR_DATES')
     weather_data = weatherData.get_weather_history(float(config['LATITUDE']), float(config['LONGITUDE']), float(config['ELEVATION']))
-    delivery_data = deliveryData.read_delivery_data()
+    delivery_data = deliverySheetInterface.get_delivery_data(config['DELIVERY_SHEET_CREDENTIALS'], config['DELIVERY_BOOK_NAME'], config['DELIVERY_SHEET_NAME'])
     
     #check_for_missing_weather_data(weather_data)
     
@@ -102,7 +103,7 @@ def estimate_fill_volume(weather_data, delivery_data, reference_temp, alpha):
     # Since we don't have better data, assume the same average temperature as the last data day
     # Always add one more day, since tank will generally be filled tomorrow
     additionalDays = (datetime.date.today() - lastDataDate).days + 1
-    print(str(additionalDays) + ' more days')
+    #print(str(additionalDays) + ' more days')
     lastDataTavg = 0.5 * (weather_data[-1][1] + weather_data[-1][2])
     estimateToday = (xValuesForEstimate[0] + additionalDays * lastDataTavg) * coefficients[0] + (xValuesForEstimate[1] + additionalDays) * coefficients[1]
     
